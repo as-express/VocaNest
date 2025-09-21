@@ -13,6 +13,7 @@ import { TextService } from './text.service';
 import { Auth } from 'src/common/decorators/auth.decorator';
 import { TextDto } from './dto/text.dto';
 import { TextUpdDto } from './dto/text.upd';
+import { TextTranslateDto } from './dto/translate.dto';
 
 @Controller('text')
 export class TextController {
@@ -25,7 +26,14 @@ export class TextController {
     return this.textService.newText(dto, moduleId);
   }
 
-  @Get()
+  @Post('translate')
+  @Auth()
+  @UsePipes(new ValidationPipe())
+  async translate(@Body() dto: TextTranslateDto) {
+    return this.textService.translate(dto);
+  }
+
+  @Get('all/:id')
   @Auth()
   async getTexts(@Param('id') moduleId: string) {
     return this.textService.getTexts(moduleId);

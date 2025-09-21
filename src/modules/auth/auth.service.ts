@@ -11,7 +11,6 @@ import { VerifyDto } from './dto/verify.dto';
 
 @Injectable()
 export class AuthService {
-  private verificationCodes = new Map<string, string>();
   constructor(
     private jwt: JwtService,
     private readonly userService: UserService,
@@ -36,7 +35,7 @@ export class AuthService {
   }
 
   async signin(dto: SignInDto) {
-    const user = await this.userService.userChecker(dto.email);
+    const user = await this.userService.userChecker(dto.email, false);
 
     const isPass = await verify(user.password, dto.password);
     if (!isPass) {

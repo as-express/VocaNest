@@ -19,7 +19,7 @@ export class UserService {
     return user;
   }
 
-  async userChecker(email: string, isNew: boolean = false) {
+  async userChecker(email: string, isNew: boolean) {
     const user = await this.userSchema.findOne({ email });
     if (isNew ? user : !user) {
       const errMsg = isNew

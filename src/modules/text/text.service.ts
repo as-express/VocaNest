@@ -3,21 +3,25 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { TextDto } from './dto/text.dto';
 import { Text } from 'src/database/schemas/text.schema';
-import pkg from '@vitalets/google-translate-api';
 import { TextUpdDto } from './dto/text.upd';
-const translate = pkg.translate;
+import translate = require('@vitalets/google-translate-api');
+import { TextTranslateDto } from './dto/translate.dto';
+import { Module } from 'src/database/schemas/module.schema';
+import { ModuleService } from '../module/module.service';
 
 @Injectable()
 export class TextService {
   constructor(
     @InjectModel(Text.name) private readonly textSchema: Model<Text>,
+    @InjectModel(Module.name) private readonly moduleSchema: Model<Module>,
+    private readonly moduleService: ModuleService,
   ) {}
 
   async newText(dto: TextDto, moduleId: string) {
-    const isHave = await this.textSchema.findOne({ moduleId });
+    const isHave = await this.textSchema.findOne({ textFrom: dto.textFrom });
     if (isHave) throw new BadRequestException('Text is already exists');
 
-    const translation = await translate(dto.textFrom, {
+    const translation = await translate.translate(dto.textFrom, {
       from: dto.from,
       to: dto.to,
     });
@@ -29,6 +33,7 @@ export class TextService {
     });
 
     await text.save();
+    await this.moduleService.pushAndUnPush(text.id, moduleId, true);
     return text;
   }
 
@@ -51,6 +56,24 @@ export class TextService {
   }
 
   async deleteText(textId: string) {
-    return await this.textSchema.findByIdAndDelete(textId);
+    const text = await this.getText(textId);
+    await this.moduleService.pushAndUnPush(
+      text.id,
+      text.moduleId.toString(),
+      false,
+    );
+    await this.textSchema.findByIdAndDelete(textId);
+    return true;
+  }
+
+  async translate(dto: TextTranslateDto) {
+    const translation = await translate.translate(dto.text, {
+      from: dto.from,
+      to: dto.to,
+    });
+
+    return {
+      text: translation.text,
+    };
   }
 }

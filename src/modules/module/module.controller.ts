@@ -34,33 +34,30 @@ export class ModuleController {
     return this.moduleService.getModules(userId);
   }
 
+  @Get(':id/quiz')
+  @Auth()
+  @HttpCode(200)
+  async getQuiz(@Param('id') moduleId: string) {
+    return this.moduleService.getQuiz(moduleId);
+  }
+
   @Get(':id')
   @Auth()
   @HttpCode(200)
-  async getModule(
-    @reqUser('id') userId: string,
-    @Param('id') moduleId: string,
-  ) {
-    return this.moduleService.getModule(moduleId, userId);
+  async getModule(@Param('id') moduleId: string) {
+    return this.moduleService.getModule(moduleId);
   }
 
   @Put(':id')
   @Auth()
   @UsePipes(new ValidationPipe())
-  async updateModule(
-    @reqUser('id') userId: string,
-    @Param('id') moduleId: string,
-    @Body() dto: ModuleUpdDto,
-  ) {
-    return this.moduleService.updateModule(dto, moduleId, userId);
+  async updateModule(@Param('id') moduleId: string, @Body() dto: ModuleUpdDto) {
+    return this.moduleService.updateModule(dto, moduleId);
   }
 
   @Delete(':id')
   @Auth()
-  async deleteModule(
-    @reqUser('id') userId: string,
-    @Param('id') moduleId: string,
-  ) {
-    return this.moduleService.deleteModule(moduleId, userId);
+  async deleteModule(@Param('id') moduleId: string) {
+    return this.moduleService.deleteModule(moduleId);
   }
 }
