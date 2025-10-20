@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsArray, IsNotEmpty, IsString } from 'class-validator';
 
 export class TextDto {
   @IsNotEmpty()
@@ -10,6 +10,6 @@ export class TextDto {
   to: string;
 
   @IsNotEmpty()
-  @IsString()
-  textFrom: string;
+  @IsArray()
+  textFrom: string[];
 }

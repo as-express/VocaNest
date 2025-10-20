@@ -18,23 +18,30 @@ export class TextService {
   ) {}
 
   async newText(dto: TextDto, moduleId: string) {
-    const isHave = await this.textSchema.findOne({ textFrom: dto.textFrom });
-    if (isHave) throw new BadRequestException('Text is already exists');
+    console.log(dto.textFrom);
+    for (const item of dto.textFrom) {
+      console.log(item);
+      const isHave = await this.textSchema.findOne({ textFrom: item });
+      if (isHave) throw new BadRequestException('Text is already exists');
 
-    const translation = await translate.translate(dto.textFrom, {
-      from: dto.from,
-      to: dto.to,
-    });
+      const translation = await translate.translate(item, {
+        from: dto.from,
+        to: dto.to,
+      });
 
-    const text = await this.textSchema.create({
-      ...dto,
-      moduleId,
-      textTo: translation.text,
-    });
+      const text = await this.textSchema.create({
+        textFrom: item,
+        from: dto.from,
+        to: dto.to,
+        moduleId,
+        textTo: translation.text,
+      });
 
-    await text.save();
-    await this.moduleService.pushAndUnPush(text.id, moduleId, true);
-    return text;
+      await text.save();
+      await this.moduleService.pushAndUnPush(text.id, moduleId, true);
+    }
+
+    return true;
   }
 
   async getTexts(moduleId: string) {
