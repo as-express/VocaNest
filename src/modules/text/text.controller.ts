@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -14,7 +15,7 @@ import { Auth } from 'src/common/decorators/auth.decorator';
 import { TextDto } from './dto/text.dto';
 import { TextUpdDto } from './dto/text.upd';
 import { TextTranslateDto } from './dto/translate.dto';
-import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 
 @Controller('text')
 @ApiTags('Text')
@@ -44,6 +45,20 @@ export class TextController {
   @ApiParam({ name: 'id', required: true })
   async getTexts(@Param('id') moduleId: string) {
     return this.textService.getTexts(moduleId);
+  }
+
+  @Get('source')
+  @Auth()
+  @ApiBearerAuth('JWT-auth')
+  @ApiQuery({ name: 'lang', required: true })
+  @ApiQuery({ name: 'prefix', required: true })
+  @ApiQuery({ name: 'limit', required: true })
+  async getTextSource(
+    @Query('lang') lang: string,
+    @Query('prefix') prefix: string,
+    @Query('limit') limit: number,
+  ) {
+    return this.textService.getSource(lang, prefix, +limit);
   }
 
   @Get(':id')

@@ -8,6 +8,8 @@ import translate = require('@vitalets/google-translate-api');
 import { TextTranslateDto } from './dto/translate.dto';
 import { Module } from 'src/database/schemas/module.schema';
 import { ModuleService } from '../module/module.service';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class TextService {
@@ -80,5 +82,42 @@ export class TextService {
     return {
       text: translation.text,
     };
+  }
+
+  async getSource(lang: string, prefix: string, limit: number) {
+    let filename = '';
+
+    switch (lang) {
+      case 'ru':
+        filename = 'russian.txt';
+        break;
+      case 'en':
+        filename = 'english.txt';
+        break;
+      case 'uz':
+        filename = 'uzbek.txt';
+        break;
+      case 'de':
+        filename = 'german.txt';
+        break;
+      default:
+        throw new BadRequestException('Unsupported language');
+    }
+
+    const filePath = path.join(process.cwd(), 'public', filename);
+    if (!fs.existsSync(filePath)) {
+      throw new BadRequestException(`Dictionary file not found: ${filePath}`);
+    }
+
+    const wordsRaw = fs.readFileSync(filePath, 'utf8').split('\n');
+    const words = wordsRaw
+      .map((w) => w.replace(/\r/g, '').trim())
+      .filter(Boolean);
+
+    const result = words
+      .filter((w) => w.toLowerCase().startsWith(prefix.toLowerCase()))
+      .slice(0, limit);
+
+    return { words: result };
   }
 }
