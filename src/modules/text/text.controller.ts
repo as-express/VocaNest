@@ -61,6 +61,15 @@ export class TextController {
     return this.textService.getSource(lang, prefix, +limit);
   }
 
+  @Get('audio')
+  @Auth()
+  @ApiBearerAuth('JWT-auth')
+  @ApiQuery({ name: 'lang', required: true })
+  @ApiQuery({ name: 'text', required: true })
+  async getAudioText(@Query('lang') lang: string, @Query('text') text: string) {
+    return this.textService.getAudioText(lang, text);
+  }
+
   @Get(':id')
   @Auth()
   @ApiBearerAuth('JWT-auth')

@@ -10,6 +10,7 @@ import { Module } from 'src/database/schemas/module.schema';
 import { ModuleService } from '../module/module.service';
 import * as fs from 'fs';
 import * as path from 'path';
+import gTTS from 'gtts';
 
 @Injectable()
 export class TextService {
@@ -119,5 +120,21 @@ export class TextService {
       .slice(0, limit);
 
     return { words: result };
+  }
+
+  async getAudioText(lang: string, text: string) {
+    const fileName = Date.now();
+    const audioDir = path.join(process.cwd(), 'public', 'audio');
+    const filePath = path.join(audioDir, `${fileName}.mp3`);
+
+    if (!fs.existsSync(audioDir)) fs.mkdirSync(audioDir, { recursive: true });
+
+    const tts = new gTTS(text, lang);
+    return new Promise((resolve, reject) => {
+      tts.save(filePath, (err) => {
+        if (err) return reject(err);
+        resolve({ path: `/audio/${fileName}.mp3` });
+      });
+    });
   }
 }
