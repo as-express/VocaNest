@@ -48,10 +48,10 @@ export class AuthService {
   async googleLogin(userData: GoogleUserDto) {
     const user = await this.userService.createGoogleUser(userData);
 
-    const tokens = await this.issueToken(user._id.toString());
+    const token = await this.issueToken(user._id.toString());
 
     return {
-      ...tokens,
+      token,
       user,
     };
   }
@@ -78,18 +78,10 @@ export class AuthService {
 
   private async issueToken(userId: string) {
     const data = { id: userId };
-
-    const refreshToken = this.jwt.sign(data, {
-      expiresIn: '3d',
-    });
-
-    const accessToken = this.jwt.sign(data, {
+    const token = this.jwt.sign(data, {
       expiresIn: '1d',
     });
 
-    return {
-      refreshToken,
-      accessToken,
-    };
+    return { token };
   }
 }

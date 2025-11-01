@@ -18,9 +18,7 @@ export class TextService {
   ) {}
 
   async newText(dto: TextDto, moduleId: string) {
-    console.log(dto.textFrom);
     for (const item of dto.textFrom) {
-      console.log(item);
       const isHave = await this.textSchema.findOne({ textFrom: item });
       if (isHave) throw new BadRequestException('Text is already exists');
 

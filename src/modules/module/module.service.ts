@@ -65,8 +65,6 @@ export class ModuleService {
 
   async getQuiz(moduleId: string) {
     const module = await this.moduleSchema.findById(moduleId).populate('texts');
-    console.log(module);
-
     if (!module) throw new BadRequestException('Module not found');
 
     const texts: any = module.texts;
